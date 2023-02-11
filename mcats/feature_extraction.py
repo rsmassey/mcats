@@ -38,7 +38,7 @@ def extract_features(y_norm, sr):
 
     # MFCCs
     mfccs = librosa.feature.mfcc(y=y_norm, sr=sr, n_mfcc=40)
-    for i, mfcc in enumerate(mfccs):
+    for mfcc in enumerate(mfccs):
         features.append(mfcc.mean())
         features.append(mfcc.var())
 
