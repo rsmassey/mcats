@@ -12,3 +12,11 @@ LOCAL_DATA_PATH = os.path.join(os.path.expanduser('~'),
                                "mcats",
                                "data",
                                "normalized_data.csv")
+
+LOCAL_SONG_PATH = os.path.join(os.path.expanduser('~'),
+                               "code",
+                               "rsmassey",
+                               "mcats",
+                               "mcats",
+                               "data",
+                               "song_input.wav")
