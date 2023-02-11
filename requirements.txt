@@ -8,6 +8,10 @@ wheel>=0.29
 numpy
 pandas
 scikit-learn
+tensorflow
+
+# audio related
+librosa
 
 # tests/linter
 black
