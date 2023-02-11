@@ -1,5 +1,5 @@
-from feature_extraction_from_dataset import normalize_volume
-from feature_extraction_from_dataset import extract_features
+from feature_extraction import normalize_volume
+from feature_extraction import extract_features
 import os
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
