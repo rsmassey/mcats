@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 def train_and_classify(song_features):
 
     #Import the data from the csv file
-    csv_path = "../raw_data/normalized_data.csv"
+    csv_path = LOCAL_DATA_PATH
     data = pd.read_csv(csv_path)
 
     #Dropping the first column of the csv file
@@ -43,4 +43,4 @@ def train_and_classify(song_features):
     classification = model.predict(X_to_classify)[0]
 
     #Print the classification of the input song
-    train_and_classify = classification
+    return classification
