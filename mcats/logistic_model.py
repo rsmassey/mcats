@@ -5,7 +5,9 @@ from sklearn.model_selection import cross_validate
 from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
 
-
+from ml_logic.params import (
+    LOCAL_DATA_PATH
+)
 
 def train_and_classify(song_features):
 
