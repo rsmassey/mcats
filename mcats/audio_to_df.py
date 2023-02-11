@@ -1,5 +1,5 @@
-from feature_extraction import normalize_volume
-from feature_extraction import extract_features
+from feature_extraction_from_dataset import normalize_volume
+from feature_extraction_from_dataset import extract_features
 import os
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -49,7 +49,7 @@ def audio_to_df(audio_files_root_dir):
 
 def df_to_scaled_df(df):
     # Use standard scaler from sklearn library
-    scaler = StandardScalar()
+    scaler = StandardScaler()
 
     # Remove the genre column and standardize the features
     df_without_genre = df.iloc[:, :-1].copy()
