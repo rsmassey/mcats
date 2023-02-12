@@ -5,7 +5,7 @@ import os
 
 from colorama import Fore, Style
 
-from taxifare.ml_logic.params import LOCAL_DATA_PATH
+from mcats.ml_logic.params import LOCAL_DATA_PATH
 
 def get_pandas_chunk(path: str,
                      index: int,

@@ -1,7 +1,7 @@
 import time
 import tracemalloc
 
-from taxifare.ml_logic.params import DATASET_SIZE
+from mcats.ml_logic.params import DATASET_SIZE
 
 def get_dataset_timestamp(df=None):
     """

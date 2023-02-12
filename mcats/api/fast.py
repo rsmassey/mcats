@@ -1,9 +1,9 @@
 from datetime import datetime
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from taxifare.ml_logic import registry
-from taxifare.ml_logic import preprocessor
-from taxifare.interface import main
+from mcats.ml_logic import registry
+from mcats.ml_logic import preprocessor
+from mcats.interface import main
 import pandas as pd
 import pytz
 

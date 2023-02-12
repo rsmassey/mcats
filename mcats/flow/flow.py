@@ -1,5 +1,5 @@
 
-from taxifare.interface.main import preprocess, train, evaluate
+from mcats.interface.main import preprocess, train, evaluate
 
 from prefect import task, Flow, Parameter
 

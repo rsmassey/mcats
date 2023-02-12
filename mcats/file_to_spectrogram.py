@@ -1,5 +1,5 @@
 import librosa
-from feature_extraction import normalize_volume
+from mcats.feature_extraction import normalize_volume
 
 def file_to_db_spectrogram(file_path)
 

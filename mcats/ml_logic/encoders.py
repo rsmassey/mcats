@@ -1,14 +1,13 @@
 import math
 import numpy as np
 import pandas as pd
-import pygeohash as gh
 
-from taxifare.ml_logic.utils import simple_time_and_memory_tracker
+from mcats.ml_logic.utils import simple_time_and_memory_tracker
 
 def transform_time_features(X: pd.DataFrame) -> np.ndarray:
 
     assert isinstance(X, pd.DataFrame)
-    
+
     pickup_dt = X["pickup_datetime"]
     pickup_dt = pickup_dt.dt.tz_convert("America/New_York").dt
     dow = pickup_dt.weekday
@@ -57,16 +56,5 @@ def transform_lonlat_features(X: pd.DataFrame) -> pd.DataFrame:
     return result
 
 def compute_geohash(X: pd.DataFrame, precision: int = 5) -> np.ndarray:
-    """
-    Add a geohash (ex: "dr5rx") of len "precision" = 5 by default
-    corresponding to each (lon,lat) tuple, for pick-up, and drop-off
-    """
-    assert isinstance(X, pd.DataFrame)
 
-    X["geohash_pickup"] = X.apply(lambda x: gh.encode(
-        x.pickup_latitude, x.pickup_longitude, precision=precision),
-                                    axis=1)
-    X["geohash_dropoff"] = X.apply(lambda x: gh.encode(
-        x.dropoff_latitude, x.dropoff_longitude, precision=precision),
-                                    axis=1)
     return X[["geohash_pickup", "geohash_dropoff"]]

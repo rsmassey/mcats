@@ -1,6 +1,6 @@
 import os
-from prefect import task, Flow, Parameterfrom taxifare.interface.main import preprocess, train, evaluate
-from taxifare.flow.flow import notify
+from prefect import task, Flow, Parameterfrom mcats.interface.main import preprocess, train, evaluate
+from mcats.flow.flow import notify
 
 
 @task

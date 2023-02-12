@@ -1,4 +1,4 @@
-from taxifare.ml_logic.params import LOCAL_REGISTRY_PATH
+from mcats.ml_logic.params import LOCAL_REGISTRY_PATH
 
 import mlflow
 from mlflow.tracking import MlflowClient
