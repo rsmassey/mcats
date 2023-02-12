@@ -10,10 +10,10 @@ import pickle
 
 from colorama import Fore, Style
 
-from sklearn.linear_model import LogisticRegression
+from tensorflow import keras
 
 
-def save_model(model: LogisticRegression = None,
+def save_model(model: keras.Model = None,
                params: dict = None,
                metrics: dict = None) -> None:
     """
@@ -45,8 +45,9 @@ def save_model(model: LogisticRegression = None,
 
             # STEP 3: push model to mlflow
             if model is not None:
-                mlflow.sklearn.log_model(sk_model=model,
+                mlflow.keras.log_model(keras_model=model,
                                        artifact_path="model",
+                                       keras_module="tensorflow.keras",
                                        registered_model_name=mlflow_model_name)
 
         print("\n✅ data saved to mlflow")
@@ -80,7 +81,7 @@ def save_model(model: LogisticRegression = None,
     return None
 
 
-def load_model(save_copy_locally=False) -> LogisticRegression:
+def load_model(save_copy_locally=False) -> keras.Model:
     """
     load the latest saved model, return None if no model found
     """
@@ -98,7 +99,7 @@ def load_model(save_copy_locally=False) -> LogisticRegression:
         print(f"- uri: {model_uri}")
 
         try:
-            model = mlflow.sklearn.load_model(model_uri=model_uri)
+            model = mlflow.keras.load_model(model_uri=model_uri)
             print("\n✅ model loaded from mlflow")
         except:
             print(f"\n❌ no model in stage {stage} on mlflow")

@@ -5,7 +5,7 @@ import os
 from colorama import Fore, Style
 
 from mcats.ml_logic.data import clean_data, get_chunk, save_chunk
-from mcats.ml_logic.model import initialize_model, compile_model, train_model, evaluate_model
+from mcats.ml_logic.model import  train_model, initialize_model
 from mcats.ml_logic.params import CHUNK_SIZE, DATASET_SIZE, VALIDATION_DATASET_SIZE
 from mcats.ml_logic.preprocessor import preprocess_features
 from mcats.ml_logic.utils import get_dataset_timestamp
@@ -107,7 +107,10 @@ def train():
 
     # Load a validation set common to all chunks, used to early stop model training
     data_val_processed = get_chunk(
-        source_name=f"val_processed_{VALIDATION_DATASET_SIZE}",
+        # Remember to put back when preprocessing module is completed
+        # and also to create a val_processed_{VALIDATION_DATASET_SIZE} table on the google bigquery cloud
+        # source_name=f"val_processed_{VALIDATION_DATASET_SIZE}",
+        source_name=f"val_{VALIDATION_DATASET_SIZE}",
         index=0,  # retrieve from first row
         chunk_size=None
     )  # Retrieve all further data
@@ -124,10 +127,13 @@ def train():
     model = None
     model = load_model()  # production model
 
-    # Model params
-    learning_rate = 0.001
-    batch_size = 256
-    patience = 2
+    # Model params FOR NEURAL NETWORK MODEL
+    # learning_rate = 0.001
+    # batch_size = 256
+    # patience = 2
+
+    # Model params for Logistic Regression
+    max_iter = 1000
 
     # Iterate on the full dataset per chunks
     chunk_id = 0
@@ -137,9 +143,11 @@ def train():
     while (True):
 
         print(Fore.BLUE + f"\nLoading and training on preprocessed chunk n°{chunk_id}..." + Style.RESET_ALL)
-
+        # Remember to put back when preprocessing module is completed
+        # and also to create a train_processed_{DATASET_SIZE} table on the google bigquery cloud
+        # source_name=f"train_processed_{DATASET_SIZE}",
         data_processed_chunk = get_chunk(
-            source_name=f"train_processed_{DATASET_SIZE}",
+            source_name=f"train_{DATASET_SIZE}",
             index=chunk_id * CHUNK_SIZE,
             chunk_size=CHUNK_SIZE
         )
@@ -158,24 +166,40 @@ def train():
         chunk_row_count = data_processed_chunk.shape[0]
         row_count += chunk_row_count
 
-        # Initialize model
-        if model is None:
-            model = initialize_model(X_train_chunk)
+        # Initialize model FOR NEURAL NETWORK
+        # if model is None:
+        #     model = initialize_model(X_train_chunk)
 
         # (Re-)compile and train the model incrementally
-        model = compile_model(model, learning_rate)
-        model, history = train_model(
-            model,
-            X_train_chunk,
-            y_train_chunk,
-            batch_size=batch_size,
-            patience=patience,
-            validation_data=(X_val_processed, y_val)
+        # CODE FOR NEURAL NETWORK MODEL
+        # model = compile_model(model, learning_rate)
+        # model, history = train_model(
+        #    model,
+        #    X_train_chunk,
+        #    y_train_chunk,
+        #    batch_size=batch_size,
+        #    patience=patience,
+        #    validation_data=(X_val_processed, y_val)
+        #)
+
+        # INITIALIZE LOGISTIC REGRESSION MODEL
+        model = initialize_model(max_iter)
+
+        # CODE FOR LOGISTIC REGRESSION
+        model, accuracy = train_model(model,
+                            X_train_chunk,
+                            y_train_chunk
         )
 
-        metrics_val_chunk = np.min(history.history['val_mae'])
+
+        # metrics_val_chunk = np.min(history.history['val_mae'])
+        # metrics_val_list.append(metrics_val_chunk)
+        # print(f"Chunk MAE: {round(metrics_val_chunk,2)}")
+        metrics_val_chunk = accuracy
         metrics_val_list.append(metrics_val_chunk)
-        print(f"Chunk MAE: {round(metrics_val_chunk,2)}")
+        print(f"Chunk accuracy: {round(metrics_val_chunk,2)}")
+
+
 
         # Check if chunk was full
         if chunk_row_count < CHUNK_SIZE:
@@ -189,16 +213,18 @@ def train():
         return
 
     # Return the last value of the validation MAE
-    val_mae = metrics_val_list[-1]
+    # val_mae = metrics_val_list[-1]
 
-    print(f"\n✅ trained on {row_count} rows with MAE: {round(val_mae, 2)}")
+    # print(f"\n✅ trained on {row_count} rows with MAE: {round(val_mae, 2)}")
 
     params = dict(
-        # Model parameters
-        learning_rate=learning_rate,
-        batch_size=batch_size,
-        patience=patience,
+        # Model parameters FOR NEURAL NETWORK
+        # learning_rate=learning_rate,
+        # batch_size=batch_size,
+        # patience=patience,
 
+        # Model parameters for logistic regression
+        max_iter = max_iter,
         # Package behavior
         context="train",
         chunk_size=CHUNK_SIZE,
@@ -207,14 +233,14 @@ def train():
         training_set_size=DATASET_SIZE,
         val_set_size=VALIDATION_DATASET_SIZE,
         row_count=row_count,
-        model_version=get_model_version(),
-        dataset_timestamp=get_dataset_timestamp(),
+        model_version=get_model_version()
+        # dataset_timestamp=get_dataset_timestamp(),
     )
 
     # Save model
-    save_model(model=model, params=params, metrics=dict(mae=val_mae))
+    save_model(model=model, params=params, metrics=dict(accuracy=accuracy))
 
-    return val_mae
+    return accuracy
 
 
 def evaluate():
@@ -300,7 +326,7 @@ def pred(X_pred: pd.DataFrame = None) -> np.ndarray:
 if __name__ == '__main__':
 
     #X is rock which is 7
-    X = [661794,0.35008811950683594,0.08875656872987747,0.1302279233932495,0.0028266964945942163,1784.165849538755,129774.06452515082,2002.4490601176963,85882.76131549841,3805.8396058403423,901505.4255328419,0.08304482066898686,0.0007669456545940504,-4.5297241740627214e-05,0.00817228201776743,7.783231922076084e-06,0.00569818215444684,123.046875,-113.57064819335938,2564.20751953125,121.57179260253906,295.913818359375,-19.168142318725586,235.57443237304688,42.36642074584961,151.10687255859375,-6.364664077758789,167.93479919433594,18.623498916625977,89.18083953857422,-13.704891204833984,67.66049194335938,15.34315013885498,68.93257904052734,-12.274109840393066,82.2042007446289,10.976572036743164,63.38631057739258,-8.326573371887207,61.773094177246094,8.803791999816895,51.24412536621094,-3.672300100326538,41.21741485595703,5.747994899749756,40.55447769165039,-5.162881851196289,49.775421142578125,0.752740204334259,52.4209098815918,-1.6902146339416504,36.524070739746094,-0.4089791774749756,41.597103118896484,-2.3035225868225098,55.062923431396484,1.2212907075881958,46.93603515625]
+    #X = [661794,0.35008811950683594,0.08875656872987747,0.1302279233932495,0.0028266964945942163,1784.165849538755,129774.06452515082,2002.4490601176963,85882.76131549841,3805.8396058403423,901505.4255328419,0.08304482066898686,0.0007669456545940504,-4.5297241740627214e-05,0.00817228201776743,7.783231922076084e-06,0.00569818215444684,123.046875,-113.57064819335938,2564.20751953125,121.57179260253906,295.913818359375,-19.168142318725586,235.57443237304688,42.36642074584961,151.10687255859375,-6.364664077758789,167.93479919433594,18.623498916625977,89.18083953857422,-13.704891204833984,67.66049194335938,15.34315013885498,68.93257904052734,-12.274109840393066,82.2042007446289,10.976572036743164,63.38631057739258,-8.326573371887207,61.773094177246094,8.803791999816895,51.24412536621094,-3.672300100326538,41.21741485595703,5.747994899749756,40.55447769165039,-5.162881851196289,49.775421142578125,0.752740204334259,52.4209098815918,-1.6902146339416504,36.524070739746094,-0.4089791774749756,41.597103118896484,-2.3035225868225098,55.062923431396484,1.2212907075881958,46.93603515625]
 
     # X = file_to_prediction(LOCAL_SONG_PATH)
 
@@ -309,7 +335,7 @@ if __name__ == '__main__':
 
         # preprocess()
         # preprocess(source_type='val')
-        # train()
+        train()
         # pred()
         # evaluate()
 
@@ -319,8 +345,8 @@ if __name__ == '__main__':
 
 
         #train a model and use the provided input to classify
-        result = train_and_classify(X)
-        print(f'The genre of the provided song is: {result}')
+        #result = train_and_classify(X)
+        #print(f'The genre of the provided song is: {result}')
 
     except:
         import ipdb, traceback, sys

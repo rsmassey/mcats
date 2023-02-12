@@ -9,7 +9,7 @@ def get_dataset_timestamp(df=None):
     """
 
     import pandas as pd
-    from taxifare.ml_logic.data import get_chunk
+    from mcats.ml_logic.data import get_chunk
 
     if df is None:
         # Trick specific to this taxifare challenge:
