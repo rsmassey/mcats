@@ -18,7 +18,7 @@ def file_to_prediction(file_path):
     # Here is where the model can be called to predict the data
 
     # This is just for demo purposes
-    return np.arange(89)
+    return feature_list
 
 
 
