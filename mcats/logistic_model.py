@@ -5,24 +5,26 @@ from sklearn.model_selection import cross_validate
 from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
 
-from ml_logic.params import (
-    LOCAL_DATA_PATH
+from mcats.ml_logic.params import (
+    LOCAL_DATA_PATH,
+    DATASET_SIZE
 )
 
-def train_and_classify(song_features):
+
+def train_and_classify(song_features, source_type = 'train'):
 
     #Import the data from the csv file
-    csv_path = LOCAL_DATA_PATH
+    csv_path = f'{LOCAL_DATA_PATH}/{source_type}_{DATASET_SIZE}.csv'
     data = pd.read_csv(csv_path)
 
     #Dropping the first column of the csv file
     #The first column contains the name of the audio file.
     # Irrelevant for the task.
-    data  = data.drop("Unnamed: 0", axis=1)
+    data  = data.drop("filename", axis=1)
 
     #Setting up the featurs and the target variables
-    y = np.array(data['genre'])
-    X = np.array(data.drop('genre', axis=1))
+    y = np.array(data['label'])
+    X = np.array(data.drop('label', axis=1))
 
     #Initialising a Logistic Regression model
     model = LogisticRegression(max_iter=1000)

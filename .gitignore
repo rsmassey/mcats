@@ -7,3 +7,8 @@ raw_data/
 **/__pycache__/
 .env
 .python-version
+.env
+data/
+training_outputs/
+.wav
+.mp3

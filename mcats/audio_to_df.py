@@ -1,5 +1,5 @@
-from feature_extraction import normalize_volume
-from feature_extraction import extract_features
+from mcats.feature_extraction import normalize_volume
+from mcats.feature_extraction import extract_features
 import os
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
