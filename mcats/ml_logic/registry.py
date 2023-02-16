@@ -127,7 +127,7 @@ def load_model(save_copy_locally=False) -> LogisticRegression:
     model_path = sorted(results)[-1]
     print(f"- path: {model_path}")
 
-    model = keras.models.load_model(model_path)
+    model = LogisticRegression.load_model(model_path)
     print("\n✅ model loaded from disk")
 
     return model
