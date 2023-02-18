@@ -1,8 +1,10 @@
-from mcats.feature_extraction import normalize_volume
-from mcats.feature_extraction import extract_features
+from mcats.wav_extraction.feature_extraction import normalize_volume
+from mcats.wav_extraction.feature_extraction import extract_features
 import os
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
+
+
 
 def audio_to_df(audio_files_root_dir):
     # Create a dataframe with the names of each feature
@@ -45,7 +47,11 @@ def audio_to_df(audio_files_root_dir):
     genre_to_number = {genre: number for number, genre in enumerate(genres)}
     df['genre'] = df['genre'].apply(lambda x: genre_to_number[x])
 
-    return df, genre_to_number
+    return df
+
+
+
+
 
 def df_to_scaled_df(df):
     # Use standard scaler from sklearn library

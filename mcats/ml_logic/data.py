@@ -14,38 +14,8 @@ import pandas as pd
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    clean raw data by removing buggy or irrelevant transactions
-    or columns for the training set
+    clean raw data by TO COMPLETE
     """
-
-    # remove redundant columns
-    df = df.drop(columns=['key'])
-
-    # remove buggy transactions
-    df = df.drop_duplicates()  # TODO: handle in the data source if the data is consumed by chunks
-    df = df.dropna(how='any', axis=0)
-    df = df[(df.dropoff_latitude != 0) | (df.dropoff_longitude != 0) |
-            (df.pickup_latitude != 0) | (df.pickup_longitude != 0)]
-    df = df[df.passenger_count > 0]
-    df = df[df.fare_amount > 0]
-
-    # Remove geographically irrelevant transactions (rows)
-    df = df[df.fare_amount < 400]
-    df = df[df.passenger_count < 8]
-    df = df[df["pickup_latitude"].between(left=40.5, right=40.9)]
-    df = df[df["dropoff_latitude"].between(left=40.5, right=40.9)]
-    df = df[df["pickup_longitude"].between(left=-74.3, right=-73.7)]
-    df = df[df["dropoff_longitude"].between(left=-74.3, right=-73.7)]
-
-    # Convert column to datetime in the most efficient manner
-    datetime_format = "%Y-%m-%d %H:%M:%S UTC"
-    if os.environ.get("DATA_SOURCE") == "bigquery":
-        datetime_format = "%Y-%m-%d %H:%M:%S"
-
-    df["pickup_datetime"] = pd.to_datetime(df["pickup_datetime"],
-                               format=datetime_format,
-                               utc=True)
-    print("\n✅ data cleaned")
 
     return df
 

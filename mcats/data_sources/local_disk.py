@@ -1,11 +1,10 @@
 
 import pandas as pd
-
 import os
-
 from colorama import Fore, Style
-
 from mcats.ml_logic.params import LOCAL_DATA_PATH
+from sklearn.model_selection import train_test_split
+
 
 def get_pandas_chunk(path: str,
                      index: int,
@@ -65,3 +64,43 @@ def save_local_chunk(path: str,
                 mode="w" if is_first else "a",
                 header=is_first,
                 index=False)
+
+
+def save_local_raw_csv(path: str,
+                       data: pd.DataFrame):
+        path = os.path.join(
+        os.path.expanduser(LOCAL_DATA_PATH),
+        "raw",
+        f"{path}.csv")
+        data.to_csv(path, index=False)
+
+
+def split_data_csv(raw_dataset_csv: str ):
+
+    csv_path = raw_dataset_csv
+
+    # Assign the input path
+    csv_path = os.path.join(
+        os.path.expanduser(LOCAL_DATA_PATH),
+        "raw",
+        f"{csv_path}.csv")
+    data = pd.read_csv(csv_path)
+
+    # Split the data into train and test
+    train_data, test_data = train_test_split(data, test_size=0.3)
+
+    # Create the train dataset output path
+    train_path = os.path.join(
+        os.path.expanduser(LOCAL_DATA_PATH),
+        "raw",
+        f"train_{raw_dataset_csv}.csv")
+
+    # Create the validation dataset output path
+    val_path = os.path.join(
+        os.path.expanduser(LOCAL_DATA_PATH),
+        "raw",
+        f"val_{raw_dataset_csv}.csv")
+
+    # Output the dataset into csv files
+    train_data.to_csv(train_path, index=False)
+    test_data.to_csv(val_path, index=False)

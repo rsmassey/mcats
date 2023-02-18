@@ -220,8 +220,8 @@ DTYPES_PROCESSED_OPTIMIZED = np.float32
 ################## VALIDATIONS #################
 
 env_valid_options = dict(
-    DATASET_SIZE=["Ryan_small_30s"],
-    VALIDATION_DATASET_SIZE=["Ryan_small_30s"],
+    DATASET_SIZE=["small_30s"],
+    VALIDATION_DATASET_SIZE=["small_30s"],
     DATA_SOURCE=["local", "bigquery"],
     MODEL_TARGET=["local", "gcs", "mlflow"],
     PREFECT_BACKEND=["development", "production"],

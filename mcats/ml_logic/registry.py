@@ -126,7 +126,7 @@ def load_model(save_copy_locally=False) -> SVC:
     model_path = sorted(results)[-1]
     print(f"- path: {model_path}")
 
-    model = svm.load_model(model_path)
+    model = SVC.load_model(model_path)
     print("\n✅ model loaded from disk")
 
     return model

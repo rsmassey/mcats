@@ -22,10 +22,10 @@ def train_model(model,
     #accuracy = model.score(X, y)
 
     #Cross-validation
-    cv_results = cross_validate(X,
-                              y,
-                              model,
-                              cv=5)
+    cv_results = cross_validate(model,
+                                X,
+                                y,
+                                cv=5)
 
     accuracy = cv_results['test_score'].mean()
 
