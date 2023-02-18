@@ -15,6 +15,7 @@ coverage
 flake8
 pytest
 yapf
+httpx
 
 # API
 gcsfs
@@ -22,6 +23,10 @@ google-cloud-storage
 mlflow
 s3fs
 streamlit
+requests
+fastapi
+pytz
+uvicorn
 
 # utilities
 six>=1.14
