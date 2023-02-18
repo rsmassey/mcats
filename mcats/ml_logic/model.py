@@ -27,7 +27,7 @@ def train_model(model,
                               model,
                               cv=5)
 
-    accuracy = cv_results[0].mean()
+    accuracy = cv_results['test_score'].mean()
 
     return model, accuracy
 
