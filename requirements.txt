@@ -8,6 +8,10 @@ wheel>=0.29
 numpy
 pandas
 scikit-learn
+tensorflow
+
+# audio related
+librosa
 
 # tests/linter
 black
@@ -22,14 +26,23 @@ gcsfs
 google-cloud-storage
 mlflow
 s3fs
+
 streamlit
 requests
 fastapi
 pytz
 uvicorn
 
+
 # utilities
 six>=1.14
 joblib
 memoized-property
 termcolor
+
+# format
+colorama
+
+#Machin Learning
+prefect
+mlflow
