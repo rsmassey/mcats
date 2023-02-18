@@ -2,7 +2,6 @@ from mcats.ml_logic.params import LOCAL_REGISTRY_PATH
 
 import mlflow
 from mlflow.tracking import MlflowClient
-
 import glob
 import os
 import time
@@ -10,10 +9,10 @@ import pickle
 
 from colorama import Fore, Style
 
-from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
 
 
-def save_model(model: LogisticRegression = None,
+def save_model(model: SVC = None,
                params: dict = None,
                metrics: dict = None) -> None:
     """
@@ -80,7 +79,7 @@ def save_model(model: LogisticRegression = None,
     return None
 
 
-def load_model(save_copy_locally=False) -> LogisticRegression:
+def load_model(save_copy_locally=False) -> SVC:
     """
     load the latest saved model, return None if no model found
     """
@@ -127,7 +126,7 @@ def load_model(save_copy_locally=False) -> LogisticRegression:
     model_path = sorted(results)[-1]
     print(f"- path: {model_path}")
 
-    model = keras.models.load_model(model_path)
+    model = SVC.load_model(model_path)
     print("\n✅ model loaded from disk")
 
     return model

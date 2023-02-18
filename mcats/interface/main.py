@@ -8,21 +8,42 @@ from mcats.ml_logic.data import clean_data, get_chunk, save_chunk
 from mcats.ml_logic.model import  train_model, initialize_model
 from mcats.ml_logic.params import CHUNK_SIZE, DATASET_SIZE, VALIDATION_DATASET_SIZE
 from mcats.ml_logic.preprocessor import preprocess_features
-from mcats.ml_logic.utils import get_dataset_timestamp
 from mcats.ml_logic.registry import get_model_version
 
 from mcats.ml_logic.registry import load_model, save_model
 
 
 from mcats.logistic_model import train_and_classify
-import mcats.audio_to_df
-import mcats.feature_extraction
+from mcats.wav_extraction.audio_to_df import audio_to_df
 from mcats.file_to_prediction import file_to_prediction
 
 from mcats.ml_logic.params import (
     LOCAL_DATA_PATH,
     LOCAL_SONG_PATH
 )
+
+from mcats.data_sources.local_disk import save_local_raw_csv
+from mcats.data_sources.local_disk import split_data_csv
+
+
+def import_wav():
+    """
+    Creating a csv dataset by extracting features from music wav files
+    """
+
+    print("\n⭐️ Use case: Extracting wav files features into a csv dataset")
+
+    wav_dir = os.path.join(
+        os.path.expanduser(LOCAL_DATA_PATH),
+        "wav_files",
+        DATASET_SIZE)
+
+    audio_df = audio_to_df(wav_dir)
+    save_local_raw_csv(DATASET_SIZE, audio_df)
+
+
+def split_data():
+    split_data_csv(DATASET_SIZE)
 
 
 def preprocess(source_type = 'train'):
@@ -66,8 +87,8 @@ def preprocess(source_type = 'train'):
             print(Fore.BLUE + "\nNo cleaned data in latest chunk..." + Style.RESET_ALL)
             break
 
-        X_chunk = data_chunk_cleaned.drop("label", axis=1)
-        y_chunk = data_chunk_cleaned[["label"]]
+        X_chunk = data_chunk_cleaned.drop("genre", axis=1)
+        y_chunk = data_chunk_cleaned[["genre"]]
 
         X_processed_chunk = preprocess_features(X_chunk)
 
@@ -107,10 +128,8 @@ def train():
 
     # Load a validation set common to all chunks, used to early stop model training
     data_val_processed = get_chunk(
-        # Remember to put back when preprocessing module is completed
-        # and also to create a val_processed_{VALIDATION_DATASET_SIZE} table on the google bigquery cloud
-        # source_name=f"val_processed_{VALIDATION_DATASET_SIZE}",
-        source_name=f"val_{VALIDATION_DATASET_SIZE}",
+        # Remember to create a val_processed_{VALIDATION_DATASET_SIZE} table on the google bigquery cloud
+        source_name=f"val_processed_{VALIDATION_DATASET_SIZE}",
         index=0,  # retrieve from first row
         chunk_size=None
     )  # Retrieve all further data
@@ -127,13 +146,10 @@ def train():
     model = None
     model = load_model()  # production model
 
-    # Model params FOR NEURAL NETWORK MODEL
-    # learning_rate = 0.001
-    # batch_size = 256
-    # patience = 2
 
-    # Model params for Logistic Regression
-    max_iter = 1000
+    # Model params for svm
+    kernel='linear'
+    C=0.3
 
     # Iterate on the full dataset per chunks
     chunk_id = 0
@@ -143,11 +159,9 @@ def train():
     while (True):
 
         print(Fore.BLUE + f"\nLoading and training on preprocessed chunk n°{chunk_id}..." + Style.RESET_ALL)
-        # Remember to put back when preprocessing module is completed
-        # and also to create a train_processed_{DATASET_SIZE} table on the google bigquery cloud
-        # source_name=f"train_processed_{DATASET_SIZE}",
+        # Remember to create a train_processed_{DATASET_SIZE} table on the google bigquery cloud
         data_processed_chunk = get_chunk(
-            source_name=f"train_{DATASET_SIZE}",
+            source_name=f"train_processed_{DATASET_SIZE}",
             index=chunk_id * CHUNK_SIZE,
             chunk_size=CHUNK_SIZE
         )
@@ -166,35 +180,16 @@ def train():
         chunk_row_count = data_processed_chunk.shape[0]
         row_count += chunk_row_count
 
-        # Initialize model FOR NEURAL NETWORK
-        # if model is None:
-        #     model = initialize_model(X_train_chunk)
+        # INITIALIZE SVM MODEL
+        model = initialize_model(kernel, C)
 
-        # (Re-)compile and train the model incrementally
-        # CODE FOR NEURAL NETWORK MODEL
-        # model = compile_model(model, learning_rate)
-        # model, history = train_model(
-        #    model,
-        #    X_train_chunk,
-        #    y_train_chunk,
-        #    batch_size=batch_size,
-        #    patience=patience,
-        #    validation_data=(X_val_processed, y_val)
-        #)
 
-        # INITIALIZE LOGISTIC REGRESSION MODEL
-        model = initialize_model(max_iter)
-
-        # CODE FOR LOGISTIC REGRESSION
+        # Train SVM
         model, accuracy = train_model(model,
                             X_train_chunk,
                             y_train_chunk
         )
 
-
-        # metrics_val_chunk = np.min(history.history['val_mae'])
-        # metrics_val_list.append(metrics_val_chunk)
-        # print(f"Chunk MAE: {round(metrics_val_chunk,2)}")
         metrics_val_chunk = accuracy
         metrics_val_list.append(metrics_val_chunk)
         print(f"Chunk accuracy: {round(metrics_val_chunk,2)}")
@@ -212,19 +207,14 @@ def train():
         print("\n✅ no new data for the training 👌")
         return
 
-    # Return the last value of the validation MAE
-    # val_mae = metrics_val_list[-1]
-
-    # print(f"\n✅ trained on {row_count} rows with MAE: {round(val_mae, 2)}")
+    print(f"\n✅ trained on {row_count} rows")
 
     params = dict(
-        # Model parameters FOR NEURAL NETWORK
-        # learning_rate=learning_rate,
-        # batch_size=batch_size,
-        # patience=patience,
 
-        # Model parameters for logistic regression
-        max_iter = max_iter,
+        #Model parameters for svm
+        kernel = kernel,
+        C=C,
+
         # Package behavior
         context="train",
         chunk_size=CHUNK_SIZE,
@@ -234,7 +224,6 @@ def train():
         val_set_size=VALIDATION_DATASET_SIZE,
         row_count=row_count,
         model_version=get_model_version()
-        # dataset_timestamp=get_dataset_timestamp(),
     )
 
     # Save model
@@ -297,8 +286,6 @@ def pred(X_pred: pd.DataFrame = None) -> np.ndarray:
 
     print("\n⭐️ Use case: predict")
 
-    from taxifare.ml_logic.registry import load_model
-
     if X_pred is None:
 
         X_pred = pd.DataFrame(dict(
@@ -333,8 +320,11 @@ if __name__ == '__main__':
     try:
         print('Let\'s go the app is thinking !!')
 
-        # preprocess()
-        # preprocess(source_type='val')
+
+        import_wav()
+        split_data()
+        preprocess()
+        preprocess(source_type='val')
         train()
         # pred()
         # evaluate()

@@ -1,4 +1,4 @@
-from mcats.feature_extraction import normalize_volume, extract_features
+from mcats.wav_extraction.feature_extraction import normalize_volume, extract_features
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 

@@ -3,35 +3,6 @@ import tracemalloc
 
 from mcats.ml_logic.params import DATASET_SIZE
 
-def get_dataset_timestamp(df=None):
-    """
-    Retrieve the date of the latest available datapoint, at monthly granularity
-    """
-
-    import pandas as pd
-    from mcats.ml_logic.data import get_chunk
-
-    if df is None:
-        # Trick specific to this taxifare challenge:
-        # Query simply one row from the TRAIN_DATASET, it's enough to deduce the latest datapoint available
-        df = get_chunk(source_name=f"train_{DATASET_SIZE}",
-                       index=0,
-                       chunk_size=1,
-                       verbose=False)
-
-    # retrieve first row timestamp
-    ts = pd.to_datetime(df.pickup_datetime[:1])[0]
-
-    if ts.year < 2015:
-        # Trick specific to this taxifare challenge:
-        # We can consider all past training dataset to stop at 2014-12.
-        # New datapoints will start to be collected month by month starting 2015-01
-        ts = ts.replace(year=2014, month=12)
-
-    # adjust date to monthly granularity
-    ts = ts.replace(day=1, hour=0, minute=0, second=0, microsecond=0, nanosecond=0)
-
-    return ts
 
 
 def simple_time_and_memory_tracker(method):
