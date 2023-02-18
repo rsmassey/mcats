@@ -133,7 +133,10 @@ def train():
     # patience = 2
 
     # Model params for Logistic Regression
-    max_iter = 1000
+    #max_iter = 1000
+
+    kernel='linear'
+    C=0.2
 
     # Iterate on the full dataset per chunks
     chunk_id = 0
@@ -183,7 +186,11 @@ def train():
         #)
 
         # INITIALIZE LOGISTIC REGRESSION MODEL
-        model = initialize_model(max_iter)
+        # model = initialize_model(max_iter)
+
+        # INITIALIZE SVM MODEL
+        model = initialize_model(kernel, C)
+
 
         # CODE FOR LOGISTIC REGRESSION
         model, accuracy = train_model(model,
@@ -224,7 +231,12 @@ def train():
         # patience=patience,
 
         # Model parameters for logistic regression
-        max_iter = max_iter,
+        # max_iter = max_iter,
+
+        #Model parameters for svm
+        kernel = kernel,
+        C=C,
+
         # Package behavior
         context="train",
         chunk_size=CHUNK_SIZE,

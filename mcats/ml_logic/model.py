@@ -2,40 +2,43 @@
 from colorama import Fore, Style
 from typing import Tuple
 import numpy as np
-from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
 from sklearn.model_selection import cross_validate
 
 
 def train_model(model,
                 X: np.ndarray,
-                y: np.ndarray,
-                cv=5) -> Tuple[LogisticRegression, dict]:
+                y: np.ndarray) -> Tuple[SVC, dict]:
     """
     Fit model and return a the tuple (fitted_model, accuracy)
     """
 
     print(Fore.BLUE + "\nTrain model..." + Style.RESET_ALL)
 
-    #Cross validate the data
-    cv_results = cross_validate(model, X, y, cv=cv)
-
-    #Getting a score
-    accuracy = cv_results['test_score'].mean()
-
     #Training the data
     model.fit(X, y)
 
+    #Getting a score
+    #accuracy = model.score(X, y)
+
+    #Cross-validation
+    cv_results = cross_validate(X,
+                              y,
+                              model,
+                              cv=5)
+
+    accuracy = cv_results[0].mean()
 
     return model, accuracy
 
 
-def initialize_model(max_iter) -> LogisticRegression:
+def initialize_model(kernel, C) -> SVC:
     """
     Initialize the Logistic Regression
     """
     print(Fore.BLUE + "\nInitialize model..." + Style.RESET_ALL)
 
-    model = LogisticRegression(max_iter=max_iter)
+    model = SVC(kernel=kernel, C=C)
 
     print("\n✅ model initialized")
 
