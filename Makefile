@@ -1,6 +1,9 @@
 # ----------------------------------
 #          INSTALL & TEST
 # ----------------------------------
+run:
+	@python mcats/interface/main.py
+
 install_requirements:
 	@pip install -r requirements.txt
 

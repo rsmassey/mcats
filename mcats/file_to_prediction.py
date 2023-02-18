@@ -1,4 +1,4 @@
-from feature_extraction import normalize_volume, extract_features
+from mcats.feature_extraction import normalize_volume, extract_features
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 
@@ -18,7 +18,7 @@ def file_to_prediction(file_path):
     # Here is where the model can be called to predict the data
 
     # This is just for demo purposes
-    return np.arange(89)
+    return feature_list
 
 
 
