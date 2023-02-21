@@ -10,6 +10,7 @@ import pickle
 from colorama import Fore, Style
 
 from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
 
 
 def save_model(model: SVC = None,
@@ -160,3 +161,39 @@ def get_model_version(stage="Production"):
     # model version not handled
 
     return None
+
+
+def save_preprocessor(model):
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+
+    print(Fore.BLUE + "\nSave preprocessor to local disk..." + Style.RESET_ALL)
+
+    # preprocessor model
+    preproc_path = os.path.join(LOCAL_REGISTRY_PATH, "preproc", timestamp + ".pickle")
+    print(f"- preproc path: {preproc_path}")
+    with open(preproc_path, "wb") as file:
+        pickle.dump(model, file)
+    print("\n✅ preprocessor saved locally")
+
+
+def load_preprocessor():
+    """
+    load the latest saved preprocessor, return None if no preprocessor found
+    """
+
+    print(Fore.BLUE + "\nLoad preproc from local disk..." + Style.RESET_ALL)
+
+    # get latest model version
+    preproc_directory = os.path.join(LOCAL_REGISTRY_PATH, "preproc")
+
+    results = glob.glob(f"{preproc_directory}/*")
+    if not results:
+        return None
+
+    preproc_path = sorted(results)[-1]
+    print(f"- path: {preproc_path}")
+
+    model = pickle.load(open((preproc_path),'rb'))
+    print("\n✅ preproc loaded from disk")
+
+    return model

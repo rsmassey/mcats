@@ -216,7 +216,6 @@ DTYPES_RAW_OPTIMIZED_HEADLESS = {
 DTYPES_PROCESSED_OPTIMIZED = np.float32
 
 
-
 ################## VALIDATIONS #################
 
 env_valid_options = dict(

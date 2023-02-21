@@ -26,24 +26,32 @@ from mcats.data_sources.local_disk import save_local_raw_csv
 from mcats.data_sources.local_disk import split_data_csv
 
 
-def import_wav():
+def import_wav(wav_dir: str = None):
     """
     Creating a csv dataset by extracting features from music wav files
     """
 
     print("\n⭐️ Use case: Extracting wav files features into a csv dataset")
 
-    wav_dir = os.path.join(
-        os.path.expanduser(LOCAL_DATA_PATH),
-        "wav_files",
-        DATASET_SIZE)
+    if wav_dir is None:
 
-    audio_df = audio_to_df(wav_dir)
-    save_local_raw_csv(DATASET_SIZE, audio_df)
+        wav_dir = os.path.join(
+            os.path.expanduser(LOCAL_DATA_PATH),
+            "wav_files",
+            DATASET_SIZE)
+
+        audio_df = audio_to_df(wav_dir, False)
+        save_local_raw_csv(DATASET_SIZE, audio_df)
+        return None
+
+    else:
+        audio_df = audio_to_df(wav_dir, True)
+        return audio_df
 
 
 def split_data():
     split_data_csv(DATASET_SIZE)
+    return None
 
 
 def preprocess(source_type = 'train'):
@@ -90,7 +98,10 @@ def preprocess(source_type = 'train'):
         X_chunk = data_chunk_cleaned.drop("genre", axis=1)
         y_chunk = data_chunk_cleaned[["genre"]]
 
-        X_processed_chunk = preprocess_features(X_chunk)
+        if source_type == "train":
+            X_processed_chunk = preprocess_features(X_chunk, False, False)
+        elif source_type == "val":
+           X_processed_chunk = preprocess_features(X_chunk, True, False)
 
         data_processed_chunk = pd.DataFrame(
             np.concatenate((X_processed_chunk, y_chunk), axis=1)
@@ -148,8 +159,8 @@ def train():
 
 
     # Model params for svm
-    kernel='linear'
-    C=0.3
+    kernel='rbf'
+    C=3
 
     # Iterate on the full dataset per chunks
     chunk_id = 0
@@ -181,7 +192,8 @@ def train():
         row_count += chunk_row_count
 
         # INITIALIZE SVM MODEL
-        model = initialize_model(kernel, C)
+        if model is None:
+            model = initialize_model(kernel, C)
 
 
         # Train SVM
@@ -286,57 +298,52 @@ def pred(X_pred: pd.DataFrame = None) -> np.ndarray:
 
     print("\n⭐️ Use case: predict")
 
-    if X_pred is None:
+    number_to_genre = {0:'hiphop',
+                     1:'classical',
+                     2:'blues',
+                     3:'metal',
+                     4:'jazz',
+                     5:'country',
+                     6:'pop',
+                     7:'rock',
+                     8:'disco',
+                     9:'reggae'}
 
-        X_pred = pd.DataFrame(dict(
-            key=["2013-07-06 17:18:00"],  # useless but the pipeline requires it
-            pickup_datetime=["2013-07-06 17:18:00 UTC"],
-            pickup_longitude=[-73.950655],
-            pickup_latitude=[40.783282],
-            dropoff_longitude=[-73.984365],
-            dropoff_latitude=[40.769802],
-            passenger_count=[1]
-        ))
+    pred_folder = os.path.join(
+            os.path.expanduser(LOCAL_DATA_PATH),
+            "wav_files",
+            "user_input")
 
+    X_pred = import_wav(pred_folder)
+    X_processed = preprocess_features(X_pred, False, True)
     model = load_model()
-    X_pred["pickup_datetime"] = pd.to_datetime(X_pred["pickup_datetime"])
+    y_pred = model.predict(X_processed)[0]
 
-    X_processed = preprocess_features(X_pred)
-
-    y_pred = model.predict(X_processed)
-
-    print("\n✅ prediction done: ", y_pred, y_pred.shape)
+    print("\n✅ The genre of the song is: ", number_to_genre[y_pred])
 
     return y_pred
 
 
 if __name__ == '__main__':
 
-    #X is rock which is 7
-    #X = [661794,0.35008811950683594,0.08875656872987747,0.1302279233932495,0.0028266964945942163,1784.165849538755,129774.06452515082,2002.4490601176963,85882.76131549841,3805.8396058403423,901505.4255328419,0.08304482066898686,0.0007669456545940504,-4.5297241740627214e-05,0.00817228201776743,7.783231922076084e-06,0.00569818215444684,123.046875,-113.57064819335938,2564.20751953125,121.57179260253906,295.913818359375,-19.168142318725586,235.57443237304688,42.36642074584961,151.10687255859375,-6.364664077758789,167.93479919433594,18.623498916625977,89.18083953857422,-13.704891204833984,67.66049194335938,15.34315013885498,68.93257904052734,-12.274109840393066,82.2042007446289,10.976572036743164,63.38631057739258,-8.326573371887207,61.773094177246094,8.803791999816895,51.24412536621094,-3.672300100326538,41.21741485595703,5.747994899749756,40.55447769165039,-5.162881851196289,49.775421142578125,0.752740204334259,52.4209098815918,-1.6902146339416504,36.524070739746094,-0.4089791774749756,41.597103118896484,-2.3035225868225098,55.062923431396484,1.2212907075881958,46.93603515625]
-
-    # X = file_to_prediction(LOCAL_SONG_PATH)
-
     try:
         print('Let\'s go the app is thinking !!')
 
 
-        import_wav()
+        # Transform  the audio input into usable data
+        # import_wav()
+        # Split raw data between training set and validation set
         split_data()
+        # Preprocess raw training data
         preprocess()
+        # Preprocess raw validation data
         preprocess(source_type='val')
+        # Train the preprocessed data
         train()
-        # pred()
-        # evaluate()
-
-        #Transform  the audio input into usable data
-
-        #Preprocess the raw data
-
-
-        #train a model and use the provided input to classify
-        #result = train_and_classify(X)
-        #print(f'The genre of the provided song is: {result}')
+        # Score the model
+        #evaluate()
+        # Classify the given song
+        pred()
 
     except:
         import ipdb, traceback, sys
