@@ -6,16 +6,16 @@ from colorama import Fore, Style
 
 from mcats.ml_logic.data import clean_data, get_chunk, save_chunk
 from mcats.ml_logic.model import  train_model, initialize_model
+from mcats.ml_logic.model_cnn import  train_model, initialize_model, compile_model
 from mcats.ml_logic.params import CHUNK_SIZE, DATASET_SIZE, VALIDATION_DATASET_SIZE
 from mcats.ml_logic.preprocessor import preprocess_features
 from mcats.ml_logic.registry import get_model_version
 
 from mcats.ml_logic.registry import load_model, save_model
-
+from mcats.ml_logic.registry import load_model_cnn, save_model_cnn, get_model_version_cnn
 
 from mcats.logistic_model import train_and_classify
 from mcats.wav_extraction.audio_to_df import audio_to_df
-from mcats.file_to_prediction import file_to_prediction
 
 from mcats.ml_logic.params import (
     LOCAL_DATA_PATH,
@@ -24,6 +24,11 @@ from mcats.ml_logic.params import (
 
 from mcats.data_sources.local_disk import save_local_raw_csv
 from mcats.data_sources.local_disk import split_data_csv
+
+from mcats.json_extraction.extract_json_data import extract_json_data
+from mcats.ml_logic.preprocessor_cnn import preprocess_cnn
+from mcats.wav_extraction.file_to_prediction_cnn import normalize_volume, file_to_mfcc,predict_song_cat
+from mcats.ml_logic.registry import load_preprocessor
 
 
 def import_wav(wav_dir: str = None):
@@ -244,52 +249,6 @@ def train():
     return accuracy
 
 
-def evaluate():
-    """
-    Evaluate the performance of the latest production model on new data
-    """
-
-    print("\n⭐️ Use case: evaluate")
-
-    # Load new data
-    new_data = get_chunk(
-        source_name=f"val_processed_{DATASET_SIZE}",
-        index=0,
-        chunk_size=None
-    )  # Retrieve all further data
-
-    if new_data is None:
-        print("\n✅ No data to evaluate")
-        return None
-
-    new_data = new_data.to_numpy()
-
-    X_new = new_data[:, :-1]
-    y_new = new_data[:, -1]
-
-    model = load_model()
-
-    metrics_dict = evaluate_model(model=model, X=X_new, y=y_new)
-    mae = metrics_dict["mae"]
-
-    # Save evaluation
-    params = dict(
-        dataset_timestamp=get_dataset_timestamp(),
-        model_version=get_model_version(),
-
-        # Package behavior
-        context="evaluate",
-
-        # Data source
-        training_set_size=DATASET_SIZE,
-        val_set_size=VALIDATION_DATASET_SIZE,
-        row_count=len(X_new)
-    )
-
-    save_model(params=params, metrics=dict(mae=mae))
-
-    return mae
-
 
 def pred(X_pred: pd.DataFrame = None) -> np.ndarray:
     """
@@ -324,6 +283,88 @@ def pred(X_pred: pd.DataFrame = None) -> np.ndarray:
     return y_pred
 
 
+def pred_CNN(X_pred: pd.DataFrame = None) -> np.ndarray:
+    """
+    Make a prediction using the latest trained model
+    """
+
+    print("\n⭐️ Use case: predict")
+
+    encoder = load_preprocessor()
+    model = load_model_cnn()
+
+    number_to_genre = {'hiphop': 0,
+                        'classical': 1,
+                        'pop': 2,
+                        'electronic': 3,
+                        'metal': 4,
+                        'rock': 5,
+                        'country': 6,
+                        'reggae': 7}
+
+    pred_folder = os.path.join(
+            os.path.expanduser(LOCAL_DATA_PATH),
+            "wav_files",
+            "user_input")
+
+    for filename in os.listdir(pred_folder):
+        file_path = os.path.join(pred_folder, filename)
+        y_pred =  predict_song_cat(file_path,model,encoder)
+        print(f"\n✅ The genre of the song {filename} is {y_pred}")
+
+    return y_pred
+
+
+
+
+
+def train_CNN(X,y):
+
+    # Model params
+    learning_rate = 0.0001
+    batch_size = 32
+    patience = 10
+
+    model = None
+    model = load_model_cnn()  # production model
+
+    # Initialize model
+    if model is None:
+        model = initialize_model(X)
+
+    # (Re-)compile and train the model
+    model = compile_model(model, learning_rate)
+    model, history = train_model(
+        model,
+        X,
+        y,
+        batch_size=batch_size,
+        patience=patience
+    )
+
+    accuracy = np.min(history.history['accuracy'])
+
+    params = dict(
+        # Model parameters
+        learning_rate=learning_rate,
+        batch_size=batch_size,
+        patience=patience,
+
+        # Package behavior
+        context="train",
+
+        # Data source
+        val_set_size=VALIDATION_DATASET_SIZE,
+        model_version=get_model_version_cnn()
+    )
+
+    # Save model
+    save_model_cnn(model=model, params=params, metrics=dict(accuracy=accuracy))
+
+    return accuracy
+
+
+
 if __name__ == '__main__':
 
     try:
@@ -333,17 +374,28 @@ if __name__ == '__main__':
         # Transform  the audio input into usable data
         # import_wav()
         # Split raw data between training set and validation set
-        split_data()
+        # split_data()
         # Preprocess raw training data
-        preprocess()
+        # preprocess()
         # Preprocess raw validation data
-        preprocess(source_type='val')
+        # preprocess(source_type='val')
         # Train the preprocessed data
-        train()
+        # train()
         # Score the model
         #evaluate()
         # Classify the given song
-        pred()
+        # pred()
+
+        #path = os.path.join(
+        #    os.path.expanduser(LOCAL_DATA_PATH),
+        #    "JSON",
+        #    "Jamendo")
+
+        #X, y = extract_json_data(path)
+        #X,y = preprocess_cnn(X,y)
+        #train_CNN(X,y)
+
+        pred_CNN()
 
     except:
         import ipdb, traceback, sys

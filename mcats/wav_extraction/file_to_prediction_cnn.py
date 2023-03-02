@@ -33,7 +33,7 @@ def predict_song_cat(file_path, model, encoder):
 
     segment_mfccs = []
     predictions = np.zeros(8)
-
+    i=0
     for i in range(n_seg):
         segment_mfcc = file_to_mfcc(file_path, n_seg, i)
         target_shape = (13, 130)
