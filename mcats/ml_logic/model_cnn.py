@@ -30,16 +30,19 @@ def initialize_model(X: np.ndarray) -> Model:
     model.add(layers.Conv2D(32, (3,3), activation='relu', padding='same', input_shape=input_shape))
     model.add(layers.MaxPool2D(pool_size=(3,3), strides=(2, 2), padding='same'))
     model.add(layers.BatchNormalization())
+    model.add(layers.Dropout(0.5))
 
     ### Second Convolution & MaxPooling
     model.add(layers.Conv2D(32, (2,2), activation='relu', padding='same'))
     model.add(layers.MaxPool2D(pool_size=(3,3), strides=(2, 2), padding='same'))
     model.add(layers.BatchNormalization())
+    model.add(layers.Dropout(0.55))
 
     ### Third Convolution & MaxPooling
     model.add(layers.Conv2D(32, (2,2), activation='relu', padding='same'))
     model.add(layers.MaxPool2D(pool_size=(2,2), strides=(2, 2), padding='same'))
     model.add(layers.BatchNormalization())
+    model.add(layers.Dropout(0.55))
 
     ### Flattening
     model.add(layers.Flatten())
@@ -48,9 +51,9 @@ def initialize_model(X: np.ndarray) -> Model:
     model.add(layers.Dense(64, activation='relu'))
 
     ### A Dropout layer to avoid overfitting
-    model.add(layers.Dropout(0.3))
+    model.add(layers.Dropout(0.5))
 
-    ### Last layer - Classification Layer with 10 outputs corresponding to 10 digits
+    ### Last layer - Classification Layer with 8 outputs for the 8 genres
     model.add(layers.Dense(8, activation='softmax'))
 
 
