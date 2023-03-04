@@ -44,7 +44,72 @@ def file_to_mfcc(audio_norm, n_seg, i):
 
     return mfcc
 
-def predict_song_cat(music_file, model):
+########
+
+def extract_features(audio_norm):
+
+    features = []
+
+    # Tempo and beats
+    tempo, beats = librosa.beat.beat_track(y=audio_norm)
+    beats_mean = beats.mean()
+    beats_var = beats.var()
+    features.extend((tempo, beats_mean, beats_var))
+
+    # Zero crossings
+    zero_crossings = librosa.zero_crossings(y=audio_norm, pad=False)
+    zero_crossings_mean = zero_crossings.mean()
+    zero_crossings_var = zero_crossings.var()
+    features.extend((zero_crossings_mean, zero_crossings_var))
+
+    # Spectral centroid
+    spectral_centroids = librosa.feature.spectral_centroid(y=audio_norm)[0]
+    spectral_centroids_mean = spectral_centroids.mean()
+    spectral_centroids_var = spectral_centroids.var()
+    features.extend((spectral_centroids_mean,spectral_centroids_var))
+
+    # Specral Rolloff
+    spectral_rolloff = librosa.feature.spectral_rolloff(y=audio_norm)[0]
+    spectral_rolloff_mean = spectral_rolloff.mean()
+    spectral_rolloff_var = spectral_rolloff.var()
+    features.extend((spectral_rolloff_mean, spectral_rolloff_var))
+
+    # MFCCs
+    mfccs = librosa.feature.mfcc(y=audio_norm, n_mfcc=40)
+    for mfcc in mfccs:
+        features.append(mfcc.mean())
+        features.append(mfcc.var())
+
+    return features
+
+number_to_genre = {0: 'hiphop',
+                1: 'classical',
+                2: 'pop',
+                3: 'electronic',
+                4: 'metal',
+                5: 'rock',
+                6: 'country',
+                7: 'reggae'}
+
+def predict_genre_ensemble(audio_norm, model):
+    columns = ['tempo', 'beats_mean', 'beats_var', 
+        'zero_crossings_mean', 'zero_crossings_var',
+        'spectral_centroids_mean', 'spectral_centroids_var', 'spectral_rolloff_mean',
+        'spectral_rolloff_var']
+    
+    for i in range(40):
+        columns.extend((f'mfcc_{i+1}_mean', f'mfcc_{i+1}_var'))
+    
+    audio_features = np.array(extract_features(audio)).reshape(1,-1)
+    audio_features = pd.DataFrame(audio_features, columns=columns)
+    audio_features_norm = pd.DataFrame(scaler.transform(audio_features), columns=columns)
+    prediction = model.predict(audio_features_norm)[0]
+    
+    return number_to_genre[prediction]
+
+#######
+
+def predict_song_cnn(music_file, model):
 
     hop_length = 512 # num. of samples
     n_fft = 2048 # num. of samples for window
@@ -73,7 +138,7 @@ def predict_song_cat(music_file, model):
 
     return pred[0][0]
 
-def run_prediction(audio_norm, model):
+def run_prediction(audio_norm, model_cnn, model_ensemble):
     segment_mfccs = []
     predictions = np.zeros(8)
     target_shape = (13, 130)
@@ -87,9 +152,14 @@ def run_prediction(audio_norm, model):
         prediction = np.ravel(model.predict(padded_mfcc))
         predictions += prediction
     predictions_int = np.round(predictions).astype(int)
-    pred = predictions_int.reshape(1,-1)
-    pred = encoder.inverse_transform(predictions_int.reshape(1,-1))
-    genre = pred[0][0]
+    pred_cnn = predictions_int.reshape(1,-1)
+    pred_cnn = encoder.inverse_transform(predictions_int.reshape(1,-1))
+    genre_cnn = pred_cnn[0][0]
+    features = extract_features(audio_norm)
+    genre_ensemble = predict_genre_ensemble(audio_norm, model)
+    ###
+    
+    ###
 
     # Tempo and beats
     tempo, beats = librosa.beat.beat_track(y=audio_norm)
@@ -106,7 +176,7 @@ def run_prediction(audio_norm, model):
 
     st.markdown(f"<h1 style='text-align: left; color: red;'>The genre of this song is ...</h1>", unsafe_allow_html=True)
 
-    file_ = open(f'/app/mcats/streamlit/{genre}_2.gif', 'rb')
+    file_ = open(f'/app/mcats/streamlit/{genre_cnn}_2.gif', 'rb')
     contents = file_.read()
     data_url = base64.b64encode(contents).decode('utf-8')
     file_.close()
@@ -114,6 +184,8 @@ def run_prediction(audio_norm, model):
         f'<img src="data:image/gif;base64,{data_url}" width="750">',
         unsafe_allow_html=True,
     )
+    if genre_cnn == genre_ensemble:
+        st.markdown(f"<h2 style='text-align: left; color: red;'>With high confidence</h2>", unsafe_allow_html=True)
 
 col1, col2 = st.columns([1, 1])
 
@@ -143,7 +215,8 @@ with col2:
     #tempo, beats = extract_features(audio_norm, sr)
     #st.markdown(f'The tempo of the song is: {tempo}, and the beats are {beats}')
 
-    model = keras.models.load_model('cnn2.h5')
+    model_cnn = keras.models.load_model('cnn2.h5')
+    model_ensemble = pickle.load(open('ensemble.sav', 'rb'))
     with open('/app/mcats/streamlit/encoder.pkl', 'rb') as f:
         encoder = pickle.load(f)
     try:
