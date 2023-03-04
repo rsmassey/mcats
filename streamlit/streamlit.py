@@ -100,7 +100,7 @@ def run_prediction(audio_norm, model):
 
     st.markdown(f"<h1 style='text-align: left; color: red;'>The genre of this song is ...</h1>", unsafe_allow_html=True)
 
-    file_ = open(f'{genre}_2.gif', 'rb')
+    file_ = open(f'/app/mcats/streamlit/{genre}_2.gif', 'rb')
     contents = file_.read()
     data_url = base64.b64encode(contents).decode('utf-8')
     file_.close()
@@ -138,7 +138,7 @@ with col2:
     #st.markdown(f'The tempo of the song is: {tempo}, and the beats are {beats}')
 
     model = keras.models.load_model('cnn2.h5')
-    with open('encoder.pkl', 'rb') as f:
+    with open('/app/mcats/streamlit/encoder.pkl', 'rb') as f:
         encoder = pickle.load(f)
     try:
         result = run_prediction(audio_norm, model)
