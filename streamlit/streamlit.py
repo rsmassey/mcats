@@ -98,7 +98,7 @@ def run_prediction(audio_norm, model):
     st.markdown(f"<h2 style='text-align: left; color: red;'> The tempo is {tempo:.1f} beats per minute.</h2>", unsafe_allow_html=True)
         
     # Frequencies
-    pitches, magnitudes = librosa.piptrack(y=audio_norm, sr=sr, fmin=20)
+    pitches, magnitudes = librosa.piptrack(y=audio_norm, fmin=20)
     min_freq = pitches[pitches != 0].min()
     max_freq = pitches.max()
 
