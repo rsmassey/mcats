@@ -94,9 +94,16 @@ def run_prediction(audio_norm, model):
     # Tempo and beats
     tempo, beats = librosa.beat.beat_track(y=audio_norm)
     beats_mean = beats.mean()
-
+    
     st.markdown(f"<h2 style='text-align: left; color: red;'> The tempo is {tempo:.1f} beats per minute.</h2>", unsafe_allow_html=True)
-    # st.markdown(f"<h1 style='text-align: center; color: red;'>The beats are {beats_mean}</h1>", unsafe_allow_html=True)
+        
+    # Frequencies
+    max_freq = librosa.feature.spectral_bandwidth(y=audio_norm).max()
+    min_freq = librosa.feature.spectral_bandwidth(y=audio_norm).min()
+
+    print(f"Maximum frequency: {max_freq:.2f}")
+    print(f"Minimum frequency: {min_freq:.2f}")
+    st.markdown(f"<h2 style='text-align: left; color: red;'> The maximum frequency is {max_freq:.1f} Hz, and the minimum frequency is {min_freq:.1f} Hz.</h2>", unsafe_allow_html=True)
 
     st.markdown(f"<h1 style='text-align: left; color: red;'>The genre of this song is ...</h1>", unsafe_allow_html=True)
 
