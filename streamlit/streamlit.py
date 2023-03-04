@@ -103,7 +103,7 @@ def run_prediction(audio_norm, model):
 
     print(f"Maximum frequency: {max_freq:.2f}")
     print(f"Minimum frequency: {min_freq:.2f}")
-    st.markdown(f"<h2 style='text-align: left; color: red;'> The frequencies range from {min_freq:.1f} Hz to {max_freq:.1f} Hz.</h2>", unsafe_allow_html=True)
+    st.markdown(f"<h2 style='text-align: left; color: red;'>The frequencies range from {min_freq:.1f} Hz to {max_freq:.1f} Hz.</h2>", unsafe_allow_html=True)
 
     st.markdown(f"<h1 style='text-align: left; color: red;'>The genre of this song is ...</h1>", unsafe_allow_html=True)
 
