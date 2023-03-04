@@ -216,7 +216,7 @@ with col2:
     #st.markdown(f'The tempo of the song is: {tempo}, and the beats are {beats}')
 
     model_cnn = keras.models.load_model('cnn2.h5')
-    model_ensemble = pickle.load(open('ensemble.sav', 'rb'))
+    # model_ensemble = pickle.load(open('ensemble.sav', 'rb'))
     with open('/app/mcats/streamlit/encoder.pkl', 'rb') as f:
         encoder = pickle.load(f)
     try:
