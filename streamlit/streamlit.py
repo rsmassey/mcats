@@ -138,7 +138,7 @@ def predict_song_cnn(music_file, model):
 
     return pred[0][0]
 
-def run_prediction(audio_norm, model_cnn, model_ensemble):
+def run_prediction(audio_norm, model_cnn):
     segment_mfccs = []
     predictions = np.zeros(8)
     target_shape = (13, 130)
