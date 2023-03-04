@@ -155,8 +155,8 @@ def run_prediction(audio_norm, model_cnn, model_ensemble):
     pred_cnn = predictions_int.reshape(1,-1)
     pred_cnn = encoder.inverse_transform(predictions_int.reshape(1,-1))
     genre_cnn = pred_cnn[0][0]
-    features = extract_features(audio_norm)
-    genre_ensemble = predict_genre_ensemble(audio_norm, model)
+    # features = extract_features(audio_norm)
+    # genre_ensemble = predict_genre_ensemble(audio_norm, model)
     ###
     
     ###
@@ -184,8 +184,8 @@ def run_prediction(audio_norm, model_cnn, model_ensemble):
         f'<img src="data:image/gif;base64,{data_url}" width="750">',
         unsafe_allow_html=True,
     )
-    if genre_cnn == genre_ensemble:
-        st.markdown(f"<h2 style='text-align: left; color: red;'>With high confidence</h2>", unsafe_allow_html=True)
+    # if genre_cnn == genre_ensemble:
+    #    st.markdown(f"<h2 style='text-align: left; color: red;'>With high confidence</h2>", unsafe_allow_html=True)
 
 col1, col2 = st.columns([1, 1])
 
