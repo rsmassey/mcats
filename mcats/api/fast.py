@@ -1,68 +1,75 @@
+import os
 from datetime import datetime
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from mcats.ml_logic import registry
-from mcats.ml_logic import preprocessor
-from mcats.interface import main
 import pandas as pd
-import pytz
+import numpy as np
+import pandas as pd
+from google.cloud import storage
+from google.oauth2 import service_account
+
+from colorama import Fore, Style
+from mcats.ml_logic.preprocessor_cnn import preprocess_cnn
+from mcats.wav_extraction.file_to_prediction_cnn import normalize_volume, file_to_mfcc,predict_song_cat
+from mcats.ml_logic.registry import load_preprocessor
+from mcats.ml_logic.registry import load_model_cnn, save_model_cnn, get_model_version_cnn
+
+from mcats.ml_logic.params import (
+    LOCAL_DATA_PATH,
+    LOCAL_SONG_PATH
+)
 
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
-    allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
-)
-
-# http://127.0.0.1:8000/predict?pickup_datetime=2012-10-06 12:10:20&pickup_longitude=40.7614327&pickup_latitude=-73.9798156&dropoff_longitude=40.6513111&dropoff_latitude=-73.8803331&passenger_count=2
-@app.get("/predict")
-def predict(pickup_datetime: datetime,  # 2013-07-06 17:18:00
-            pickup_longitude: float,    # -73.950655
-            pickup_latitude: float,     # 40.783282
-            dropoff_longitude: float,   # -73.984365
-            dropoff_latitude: float,    # 40.769802
-            passenger_count: int):      # 1
-    """
-    we use type hinting to indicate the data types expected
-    for the parameters of the function
-    FastAPI uses this information in order to hand errors
-    to the developpers providing incompatible parameters
-    FastAPI also provides variables of the expected data type to use
-    without type hinting we need to manually convert
-    the parameters of the functions which are all received as strings
-    """
-    # YOUR CODE HERE
-
-    # utc = pytz.timezone("UTC")
-    # pickup_datetime = pickup_datetime.astimezone(utc)
-
-    pickup_datetime = pd.to_datetime(pickup_datetime, utc=True)
-
-    X_pred = pd.DataFrame(dict(
-            key=["2013-07-06 17:18:00"],  # useless but the pipeline requires it
-            pickup_datetime=pickup_datetime,
-            pickup_longitude=[pickup_longitude],
-            pickup_latitude=[pickup_latitude],
-            dropoff_longitude=[dropoff_longitude],
-            dropoff_latitude=[dropoff_latitude],
-            passenger_count=[passenger_count]
-            ))
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],  # Allows all origins
+#     allow_credentials=True,
+#     allow_methods=["*"],  # Allows all methods
+#     allow_headers=["*"],  # Allows all headers
+# )
 
 
-    model = registry.load_model()
+@app.post("/classify")
+def predict(song_name: str):
 
-    X_processed = preprocessor.preprocess_features(X_pred)
+    pred_file = os.path.join(
+            os.path.expanduser(LOCAL_DATA_PATH),
+            "wav_files",
+            "user_input", song_name)
+
+    SAK = os.environ.get("SAK")
 
 
-    y_pred = model.predict(X_processed)
+    credentials = service_account.Credentials.from_service_account_file(
+        f'{SAK}'
+    )
+    client = storage.Client(credentials=credentials)
 
-    print(f"Ceci est y_pred: {y_pred}")
+    # Get the bucket you want to upload the file to
+    bucket = client.get_bucket('mcats_bucket_1')
 
-    return {'fare_amount': float(y_pred)}
+    # Download a file to the bucket
+    blob = bucket.blob(f'user_input/{song_name}')
+    blob.download_to_filename(pred_file)
+
+    encoder = load_preprocessor()
+    model = load_model_cnn()
+
+    number_to_genre = {'hiphop': 0,
+                        'classical': 1,
+                        'pop': 2,
+                        'electronic': 3,
+                        'metal': 4,
+                        'rock': 5,
+                        'country': 6,
+                        'reggae': 7}
+
+    y_pred =  predict_song_cat(pred_file,model,encoder)
+    print(f"\n✅ The genre of the song {song_name} is {y_pred}")
+
+    return y_pred
 
 
 @app.get("/")
