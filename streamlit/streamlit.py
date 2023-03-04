@@ -12,7 +12,7 @@ st.set_page_config(layout="wide")
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
-st.title('MCATs: Music Category Analyzing Tools')
+st.title('MCATs: Music Classification Analysis Tools')
 
 st.header('Brought to you by:')
 st.markdown('Alexandre Bun, Ryan Massey, Sarah Deutchman, Steven Tin')
