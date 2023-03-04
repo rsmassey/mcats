@@ -220,6 +220,6 @@ with col2:
     with open('/app/mcats/streamlit/encoder.pkl', 'rb') as f:
         encoder = pickle.load(f)
     try:
-        result = run_prediction(audio_norm, model)
+        result = run_prediction(audio_norm, model_cnn)
     except:
         pass
