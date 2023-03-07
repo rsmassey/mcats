@@ -13,10 +13,10 @@ st.set_page_config(layout="wide")
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 st.title('MCATs: Music Classification Analysis Tools')
-st.markdown("Hello")
+
 st.header('Brought to you by:')
 st.markdown('Alexandre Bun, Ryan Massey, Sarah Deutchman, Steven Tin')
-
+st.markdown("Hello")
 def normalize_volume(music_file):
     audio, sr = librosa.load(music_file, offset=30.0, duration=30.0)
     st.audio(audio, sample_rate=sr)
