@@ -85,9 +85,9 @@ file_names = ['Master_of_Puppets.wav', 'Low_Mans_Lyric.wav']
 
 with col1:
     selected_song = st.selectbox('Select a song', file_names)
-    music_file = 'https://raw.githubusercontent.com/rsmassey/mcats/streamlit/{}'.format(selected_song)
 
-    if music_file is not None:
+    if selected_song is not None:
+        music_file = 'https://raw.githubusercontent.com/rsmassey/mcats/streamlit/{}'.format(selected_song)
         audio_norm = normalize_volume(music_file)
         audio_stft = librosa.stft(audio_norm)
         audio_db = librosa.amplitude_to_db(abs(audio_stft))
