@@ -23,8 +23,6 @@ def add_bg_from_local(image_file):
     unsafe_allow_html=True
     )
 
-# add_bg_from_local('/app/mcats/streamlit/background_image.jpg')
-
 st.set_page_config(layout="wide")
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
@@ -147,3 +145,5 @@ with col2:
         result = run_prediction(audio_norm, model)
     except:
         pass
+    
+    add_bg_from_local('/app/mcats/streamlit/background_image.jpg')
