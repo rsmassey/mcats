@@ -111,7 +111,7 @@ with col2:
     #st.markdown(f'The tempo of the song is: {tempo}, and the beats are {beats}')
 
     model = keras.models.load_model('cnn2.h5')
-    with open('encoder.pkl', 'rb') as f:
+    with open('/app/mcats/streamlit/encoder.pkl', 'rb') as f:
         encoder = pickle.load(f)
     try:
         result = run_prediction(audio_norm, model)
