@@ -81,7 +81,7 @@ def run_prediction(audio_norm, model):
 
 col1, col2 = st.columns([1, 1])
 
-file_names = ['Master_of_Puppets.wav', 'Low_Mans_Lyric.wav']
+file_names = [None, 'Master_of_Puppets.wav', 'Low_Mans_Lyric.wav']
 
 with col1:
     selected_song = st.selectbox('Select a song', file_names)
