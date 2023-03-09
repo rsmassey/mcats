@@ -87,7 +87,7 @@ with col1:
     selected_song = st.selectbox('Select a song', file_names)
 
     if selected_song is not None:
-        music_file = 'https://raw.githubusercontent.com/rsmassey/mcats/streamlit/{}'.format(selected_song)
+        music_file = f'/app/mcats/streamlit/{selected_song}'
         audio_norm = normalize_volume(music_file)
         audio_stft = librosa.stft(audio_norm)
         audio_db = librosa.amplitude_to_db(abs(audio_stft))
