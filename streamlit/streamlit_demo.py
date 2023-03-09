@@ -19,7 +19,7 @@ def set_background():
     '''
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
-set_background()
+# set_background()
 
 st.set_page_config(layout="wide")
 
