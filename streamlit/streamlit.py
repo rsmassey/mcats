@@ -165,3 +165,5 @@ with col2:
         result = run_prediction(audio_norm, model)
     except:
         pass
+
+add_bg_from_local('/app/mcats/streamlit/background_image.jpg')
