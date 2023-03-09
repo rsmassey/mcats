@@ -24,19 +24,6 @@ def add_bg_from_url():
 
 add_bg_from_url() 
 
-def set_background():
-    page_bg_img = '''
-        <style>
-        body {
-        background-image: url("/app/mcats/streamlit/pngtree-notes-light-blue-watercolor-graffiti-background-image_902985.jpg");
-        background-size: cover;
-        }
-        </style>
-    '''
-    st.markdown(page_bg_img, unsafe_allow_html=True)
-
-# set_background()
-
 st.set_page_config(layout="wide")
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
