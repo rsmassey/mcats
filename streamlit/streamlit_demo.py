@@ -37,7 +37,7 @@ with col1:
 with col2:
 
     st.header('Brought to you by:')
-    st.header('Alexandre Bun, Ryan Massey, Sarah Deutchman, Steven Tin')
+    st.markdown(f'<h1 style="font-size: 16;">'Alexandre Bun, Ryan Massey, Sarah Deutchman, Steven Tin'</h1>', unsafe_allow_html=True)
 
 def normalize_volume(music_file):
     audio, sr = librosa.load(music_file)
