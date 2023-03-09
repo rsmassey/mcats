@@ -92,7 +92,7 @@ with col1:
         audio_stft = librosa.stft(audio_norm)
         audio_db = librosa.amplitude_to_db(abs(audio_stft))
         plt.figure(figsize=(14, 5))
-        librosa.display.specshow(audio_db, sr=22050, x_axis='time', y_axis='hz')
+        librosa.display.specshow(audio_db, sr=22050, x_axis='time', y_axis='log')
         plt.colorbar()
         st.pyplot()
 
