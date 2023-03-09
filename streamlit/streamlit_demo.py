@@ -22,7 +22,8 @@ def add_bg_from_local(image_file):
     """,
     unsafe_allow_html=True
     )
-add_bg_from_local('/app/mcats/streamlit/background_image.jpg')
+
+# add_bg_from_local('/app/mcats/streamlit/background_image.jpg')
 
 st.set_page_config(layout="wide")
 
