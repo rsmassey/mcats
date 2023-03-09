@@ -27,10 +27,16 @@ st.set_page_config(layout="wide")
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
-st.title('MCATs: Music Classification Analysis Tools')
+col1, col2 = st.columns([1, 1])
 
-st.header('Brought to you by:')
-st.markdown('Alexandre Bun, Ryan Massey, Sarah Deutchman, Steven Tin')
+with col1:
+
+    st.title('MCATs: Music Category Analyzing Tools')
+
+with col2:
+
+    st.header('Brought to you by:')
+    st.markdown(f'<h1 style="font-size: 32px;">Alexandre Bun, Ryan Massey, Sarah Deutchman, Steven Tin</h1>', unsafe_allow_html=True)
 
 def normalize_volume(music_file):
     audio, sr = librosa.load(music_file, offset=30.0, duration=30.0)
