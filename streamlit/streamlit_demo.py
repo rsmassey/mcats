@@ -8,11 +8,11 @@ import pickle
 import base64
 import IPython.display as ipd
 
-st.markdown(   f”””<style>
+st.markdown(f'''<style>
    p {
    background-image: url("https://png.pngtree.com/background/20211217/original/pngtree-note-music-logo-watercolor-background-picture-image_1589075.jpg");
    }
-   </style>”””, unsafe_allow_html=True)
+   </style>''', unsafe_allow_html=True)
 
 def set_background():
     page_bg_img = '''
