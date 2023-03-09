@@ -135,8 +135,7 @@ with col1:
         )
 
 with col2:
-    #tempo, beats = extract_features(audio_norm, sr)
-    #st.markdown(f'The tempo of the song is: {tempo}, and the beats are {beats}')
+    st.markdown("""---""") 
 
     model = keras.models.load_model('cnn2.h5')
     with open('/app/mcats/streamlit/encoder.pkl', 'rb') as f:
