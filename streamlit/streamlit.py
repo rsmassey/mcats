@@ -172,4 +172,4 @@ with col2:
     except:
         pass
 
-add_bg_from_local('/app/mcats/streamlit/background_image.jpg')
+add_bg_from_local('/app/mcats/streamlit/background_image.png')
