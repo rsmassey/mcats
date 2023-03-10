@@ -133,9 +133,8 @@ with col1:
         )
         
 placeholder = st.empty()
-with col2:
-  with placeholder.container():
 
+with col2:
     st.markdown("""---""") 
     time.sleep(2)
     model = keras.models.load_model('cnn2.h5')
