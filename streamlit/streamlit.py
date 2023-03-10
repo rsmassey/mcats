@@ -132,7 +132,10 @@ with col1:
             unsafe_allow_html=True,
         )
 with col2:
-    None
+    import streamlit.components.v1 as components
+
+    # bootstrap 4 collapse example
+    components.html("")
 
 with col2:
     st.markdown("""---""") 
