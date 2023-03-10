@@ -131,6 +131,8 @@ with col1:
             f'<img src="data:image/gif;base64,{data_url}" style="display: flex; justify-content: center;">',
             unsafe_allow_html=True,
         )
+with col2:
+    None
 
 with col2:
     st.markdown("""---""") 
@@ -139,7 +141,6 @@ with col2:
     with open('/app/mcats/streamlit/encoder.pkl', 'rb') as f:
         encoder = pickle.load(f)
     try:
-        result = None
         result = run_prediction(audio_norm, model)
     except:
         pass
