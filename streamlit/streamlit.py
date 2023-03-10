@@ -83,6 +83,8 @@ def run_prediction(audio_norm, model):
     pred = predictions_int.reshape(1,-1)
     pred = encoder.inverse_transform(predictions_int.reshape(1,-1))
     genre = pred[0][0]
+    
+    time.sleep(1)
 
     # Tempo and beats
     tempo, beats = librosa.beat.beat_track(y=audio_norm)
@@ -96,7 +98,9 @@ def run_prediction(audio_norm, model):
     max_freq = pitches.max()
 
     st.markdown(f"<h2 style='text-align: left;'>The frequencies range from {min_freq:.1f} Hz to {max_freq:.1f} Hz.</h2>", unsafe_allow_html=True)
-    time.sleep(2)
+    
+    time.sleep(1)
+    
     st.markdown(f"<h1 style='text-align: left;'>The genre of this song is ...</h1>", unsafe_allow_html=True)
 
     file_ = open(f'/app/mcats/streamlit/{genre}_2.gif', 'rb')
@@ -136,7 +140,7 @@ placeholder = st.empty()
 
 with col2:
     st.markdown("""---""") 
-    time.sleep(2)
+    time.sleep(1)
     model = keras.models.load_model('cnn2.h5')
     with open('/app/mcats/streamlit/encoder.pkl', 'rb') as f:
         encoder = pickle.load(f)
