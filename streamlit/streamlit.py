@@ -112,38 +112,36 @@ col1, col2 = st.columns([1, 1])
 
 with col1:
     music_file = st.file_uploader("Choose a music file")
-    #with st.spinner():
+    with st.spinner():
     
-    if music_file is not None:
-        audio_norm = normalize_volume(music_file)
-        audio_stft = librosa.stft(audio_norm)
-        audio_db = librosa.amplitude_to_db(abs(audio_stft))
-        plt.figure(figsize=(14, 5))
-        librosa.display.specshow(audio_db, sr=22050, x_axis='time', y_axis='log')
-        plt.colorbar()
-        st.pyplot()
+        if music_file is not None:
+            audio_norm = normalize_volume(music_file)
+            audio_stft = librosa.stft(audio_norm)
+            audio_db = librosa.amplitude_to_db(abs(audio_stft))
+            plt.figure(figsize=(14, 5))
+            librosa.display.specshow(audio_db, sr=22050, x_axis='time', y_axis='log')
+            plt.colorbar()
+            st.pyplot()
 
-    else:
-        file_ = open('/app/mcats/streamlit/record.gif', 'rb')
-        contents = file_.read()
-        data_url = base64.b64encode(contents).decode('utf-8')
-        file_.close()
-        st.markdown(
-            f'<img src="data:image/gif;base64,{data_url}" style="display: flex; justify-content: center;">',
-            unsafe_allow_html=True,
-        )
-col2.empty()
-    
+        else:
+            file_ = open('/app/mcats/streamlit/record.gif', 'rb')
+            contents = file_.read()
+            data_url = base64.b64encode(contents).decode('utf-8')
+            file_.close()
+            st.markdown(
+                f'<img src="data:image/gif;base64,{data_url}" style="display: flex; justify-content: center;">',
+                unsafe_allow_html=True,
+            )
 
-with col2:
-    st.markdown("""---""") 
-    time.sleep(3)
-    model = keras.models.load_model('cnn2.h5')
-    with open('/app/mcats/streamlit/encoder.pkl', 'rb') as f:
-        encoder = pickle.load(f)
-    try:
-        result = run_prediction(audio_norm, model)
-    except:
-        pass
+    with col2:
+        st.markdown("""---""") 
+        time.sleep(3)
+        model = keras.models.load_model('cnn2.h5')
+        with open('/app/mcats/streamlit/encoder.pkl', 'rb') as f:
+            encoder = pickle.load(f)
+        try:
+            result = run_prediction(audio_norm, model)
+        except:
+            pass
 
-    add_bg_from_local('/app/mcats/streamlit/background_image.png')
+        add_bg_from_local('/app/mcats/streamlit/background_image.png')
