@@ -65,35 +65,6 @@ def file_to_mfcc(audio_norm, n_seg, i):
 
     return mfcc
 
-def predict_song_cat(music_file, model):
-
-    hop_length = 512 # num. of samples
-    n_fft = 2048 # num. of samples for window
-    n_mfcc = 13 # num. of mfccs
-    sr = 22050
-    n_seg = 10
-
-    segment_mfccs = []
-    predictions = np.zeros(8)
-
-    for i in range(n_seg):
-        segment_mfcc = file_to_mfcc(music_file, n_seg, i)
-        target_shape = (13, 130)
-        pad_width = [(0, max(0, target_shape[i] - segment_mfcc.shape[i])) for i in range(len(target_shape))]
-        # Pad the array with zeros
-        padded_mfcc = np.pad(segment_mfcc, pad_width=pad_width, mode='constant', constant_values=0)
-        padded_mfcc = np.array(padded_mfcc)
-        padded_mfcc = padded_mfcc[np.newaxis,...,np.newaxis]
-        segment_mfccs.append(padded_mfcc)
-
-        prediction = np.ravel(model.predict(padded_mfcc))
-        predictions += prediction
-
-    predictions_int = np.round(predictions).astype(int)
-    pred = encoder.inverse_transform(predictions_int.reshape(1,-1))
-
-    return pred[0][0]
-
 def run_prediction(audio_norm, model):
     segment_mfccs = []
     predictions = np.zeros(8)
@@ -161,9 +132,8 @@ with col1:
         )
 
 with col2:
-    #tempo, beats = extract_features(audio_norm, sr)
-    #st.markdown(f'The tempo of the song is: {tempo}, and the beats are {beats}')
-
+    st.markdown("""---""") 
+    
     model = keras.models.load_model('cnn2.h5')
     with open('/app/mcats/streamlit/encoder.pkl', 'rb') as f:
         encoder = pickle.load(f)
