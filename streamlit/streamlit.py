@@ -112,6 +112,7 @@ col1, col2 = st.columns([1, 1])
 
 with col1:
     music_file = st.file_uploader("Choose a music file")
+    #with st.spinner():
     
     if music_file is not None:
         audio_norm = normalize_volume(music_file)
@@ -131,11 +132,8 @@ with col1:
             f'<img src="data:image/gif;base64,{data_url}" style="display: flex; justify-content: center;">',
             unsafe_allow_html=True,
         )
-with col2:
-    import streamlit.components.v1 as components
-
-    # bootstrap 4 collapse example
-    components.html("")
+col2.empty()
+    
 
 with col2:
     st.markdown("""---""") 
