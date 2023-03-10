@@ -7,6 +7,7 @@ import numpy as np
 import pickle
 import base64
 import IPython.display as ipd
+import time
 
 def add_bg_from_local(image_file):
     with open(image_file, "rb") as image_file:
@@ -95,6 +96,8 @@ def run_prediction(audio_norm, model):
 
     st.markdown(f"<h2 style='text-align: left;'>The frequencies range from {min_freq:.1f} Hz to {max_freq:.1f} Hz.</h2>", unsafe_allow_html=True)
 
+    time.sleep(2)
+    
     st.markdown(f"<h1 style='text-align: left;'>The genre of this song is ...</h1>", unsafe_allow_html=True)
 
     file_ = open(f'/app/mcats/streamlit/{genre}_2.gif', 'rb')
@@ -135,7 +138,7 @@ with col1:
 
 with col2:
     st.markdown("""---""") 
-
+    time.sleep(2)
     model = keras.models.load_model('cnn2.h5')
     with open('/app/mcats/streamlit/encoder.pkl', 'rb') as f:
         encoder = pickle.load(f)
