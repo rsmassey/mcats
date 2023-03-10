@@ -111,7 +111,6 @@ def run_prediction(audio_norm, model):
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    music_file = None
     music_file = st.file_uploader("Choose a music file")
     
     if music_file is not None:
@@ -140,6 +139,7 @@ with col2:
     with open('/app/mcats/streamlit/encoder.pkl', 'rb') as f:
         encoder = pickle.load(f)
     try:
+        result = None
         result = run_prediction(audio_norm, model)
     except:
         pass
