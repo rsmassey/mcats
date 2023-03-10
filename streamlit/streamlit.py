@@ -131,8 +131,11 @@ with col1:
             f'<img src="data:image/gif;base64,{data_url}" style="display: flex; justify-content: center;">',
             unsafe_allow_html=True,
         )
-
+        
+placeholder = st.empty()
 with col2:
+  with placeholder.container():
+
     st.markdown("""---""") 
     time.sleep(2)
     model = keras.models.load_model('cnn2.h5')
